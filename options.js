@@ -18,8 +18,15 @@ function renderList(sites) {
     del.textContent = '✕';
     del.title = 'Remove';
     del.addEventListener('click', () => {
-      const updated = sites.filter((_, j) => j !== i);
-      chrome.storage.sync.set({ [SITES_KEY]: updated }, () => renderList(updated));
+      chrome.storage.sync.get(SITES_KEY, (data) => {
+        if (chrome.runtime.lastError) return;
+        const current = data[SITES_KEY] || [];
+        const updated = current.filter((p) => p !== pattern);
+        chrome.storage.sync.set({ [SITES_KEY]: updated }, () => {
+          if (chrome.runtime.lastError) return;
+          renderList(updated);
+        });
+      });
     });
     li.appendChild(del);
     listEl.appendChild(li);
@@ -46,6 +53,10 @@ addBtn.addEventListener('click', () => {
   }
 
   chrome.storage.sync.get(SITES_KEY, (data) => {
+    if (chrome.runtime.lastError) {
+      errorEl.textContent = 'Storage error: ' + chrome.runtime.lastError.message;
+      return;
+    }
     const sites = data[SITES_KEY] || [];
     if (sites.includes(pattern)) {
       errorEl.textContent = 'Pattern already exists.';
@@ -53,6 +64,10 @@ addBtn.addEventListener('click', () => {
     }
     const updated = [...sites, pattern];
     chrome.storage.sync.set({ [SITES_KEY]: updated }, () => {
+      if (chrome.runtime.lastError) {
+        errorEl.textContent = 'Storage error: ' + chrome.runtime.lastError.message;
+        return;
+      }
       input.value = '';
       renderList(updated);
     });
