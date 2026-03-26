@@ -286,4 +286,21 @@ function checkAndToggle() {
   });
 }
 
+// Initial check
 checkAndToggle();
+
+// SPA navigation — intercept pushState and replaceState
+const _pushState = history.pushState.bind(history);
+const _replaceState = history.replaceState.bind(history);
+
+history.pushState = function (...args) {
+  _pushState(...args);
+  checkAndToggle();
+};
+history.replaceState = function (...args) {
+  _replaceState(...args);
+  checkAndToggle();
+};
+
+window.addEventListener('popstate', checkAndToggle);
+window.addEventListener('hashchange', checkAndToggle);
