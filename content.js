@@ -33,8 +33,6 @@ function injectOverlay() {
     width: '200px',
     height: '355px',
     zIndex: '2147483647',
-    top: '0',
-    left: '0',
     borderRadius: '12px',
     overflow: 'hidden',
     boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
@@ -52,6 +50,7 @@ function injectOverlay() {
   video.addEventListener('error', () => removeOverlay());
 
   shadow.appendChild(video);
+  hostDiv.style.left = '-9999px';
   document.body.appendChild(hostDiv);
 
   // Position
@@ -84,7 +83,9 @@ function removeOverlay() {
 }
 
 function urlMatchesSites(url, sites) {
-  return sites.some((pattern) => patternToRegExp(pattern).test(url));
+  return sites
+    .filter(isValidPattern)
+    .some((pattern) => patternToRegExp(pattern).test(url));
 }
 
 function checkAndToggle() {
