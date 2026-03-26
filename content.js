@@ -229,8 +229,9 @@ function injectOverlay() {
     if (onControl) return;
 
     dragging = true;
-    dragOffsetX = e.clientX - hostDiv.getBoundingClientRect().left;
-    dragOffsetY = e.clientY - hostDiv.getBoundingClientRect().top;
+    const rect = hostDiv.getBoundingClientRect();
+    dragOffsetX = e.clientX - rect.left;
+    dragOffsetY = e.clientY - rect.top;
     hostDiv.style.cursor = 'grabbing';
 
     const onMove = (e) => {
