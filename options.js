@@ -19,11 +19,17 @@ function renderList(sites) {
     del.title = 'Remove';
     del.addEventListener('click', () => {
       chrome.storage.sync.get(SITES_KEY, (data) => {
-        if (chrome.runtime.lastError) return;
+        if (chrome.runtime.lastError) {
+          errorEl.textContent = 'Storage error: ' + chrome.runtime.lastError.message;
+          return;
+        }
         const current = data[SITES_KEY] || [];
         const updated = current.filter((p) => p !== pattern);
         chrome.storage.sync.set({ [SITES_KEY]: updated }, () => {
-          if (chrome.runtime.lastError) return;
+          if (chrome.runtime.lastError) {
+            errorEl.textContent = 'Storage error: ' + chrome.runtime.lastError.message;
+            return;
+          }
           renderList(updated);
         });
       });
