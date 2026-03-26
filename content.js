@@ -155,8 +155,7 @@ function injectOverlay() {
   hostDiv.addEventListener('mouseenter', showControls);
   hostDiv.addEventListener('mouseleave', scheduleHide);
   hostDiv.addEventListener('mousemove', resetTimer);
-  seekInput.addEventListener('input', resetTimer);
-  controls.addEventListener('mousedown', resetTimer);
+  wrap.addEventListener('mousedown', resetTimer);
 
   // ── Video events ─────────────────────────────────────────
   video.addEventListener('timeupdate', () => {
@@ -187,6 +186,7 @@ function injectOverlay() {
 
   seekInput.addEventListener('input', () => {
     video.currentTime = seekInput.value * video.duration;
+    resetTimer();
   });
 
   closeBtn.addEventListener('click', () => removeOverlay());
