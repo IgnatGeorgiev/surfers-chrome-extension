@@ -214,6 +214,50 @@ function injectOverlay() {
     hostDiv.style.left = x + 'px';
     hostDiv.style.top = y + 'px';
   });
+
+  // ── Drag ─────────────────────────────────────────────────
+  let dragging = false;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  hostDiv.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+
+    // Don't start drag if clicking a control element
+    const path = e.composedPath();
+    const onControl = path.some(el => el instanceof Element && (el.tagName === 'BUTTON' || el.tagName === 'INPUT'));
+    if (onControl) return;
+
+    dragging = true;
+    dragOffsetX = e.clientX - hostDiv.getBoundingClientRect().left;
+    dragOffsetY = e.clientY - hostDiv.getBoundingClientRect().top;
+    hostDiv.style.cursor = 'grabbing';
+
+    const onMove = (e) => {
+      if (!dragging) return;
+      e.preventDefault();
+      const newX = e.clientX - dragOffsetX;
+      const newY = e.clientY - dragOffsetY;
+      const clamped = clampPosition(newX, newY, window.innerWidth, window.innerHeight);
+      hostDiv.style.left = clamped.x + 'px';
+      hostDiv.style.top = clamped.y + 'px';
+    };
+
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      hostDiv.style.cursor = 'grab';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+
+      const x = parseInt(hostDiv.style.left, 10);
+      const y = parseInt(hostDiv.style.top, 10);
+      chrome.storage.local.set({ [POSITION_KEY]: { x, y } });
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
 }
 
 function removeOverlay() {
